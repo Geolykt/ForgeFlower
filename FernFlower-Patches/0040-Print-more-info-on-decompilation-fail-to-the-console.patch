@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Geolykt <admin@geolykt.de>
+Date: Sat, 20 Feb 2021 13:35:53 +0100
+Subject: [PATCH] Print more info on decompilation fail to the console
+
+This should ease the debugging process, but we will see how it turns out
+Of course it can (and should) be improved
+
+diff --git a/src/org/jetbrains/java/decompiler/main/ClassWriter.java b/src/org/jetbrains/java/decompiler/main/ClassWriter.java
+index 58aaa9d4dafc0b873fac77c6c9fa653ebf76d3cf..3d90b5dfeb2966515d715ba11314b4853618e378 100644
+--- a/src/org/jetbrains/java/decompiler/main/ClassWriter.java
++++ b/src/org/jetbrains/java/decompiler/main/ClassWriter.java
+@@ -158,10 +158,9 @@ public class ClassWriter {
+ 
+                   buffer.append(codeBuffer);
+                 }
+-                catch (Throwable ex) {
+-                  DecompilerContext.getLogger().writeMessage("Method " + mt.getName() + " " + mt.getDescriptor() + " couldn't be written.",
+-                    IFernflowerLogger.Severity.WARN,
+-                    ex);
++                catch (Throwable t) {
++                  String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + mt.getClassStruct().qualifiedName + " couldn't be written.";
++                  DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, new RuntimeException(message, t));
+                   methodWrapper.decompiledWithErrors = true;
+                   buffer.append(" // $FF: Couldn't be decompiled");
+                 }
+@@ -550,8 +549,8 @@ public class ClassWriter {
+             buffer.append(root.toJava(indent, tracer));
+           }
+           catch (Throwable t) {
+-            String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " couldn't be written.";
+-            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
++            String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + mt.getClassStruct().qualifiedName + " couldn't be written.";
++            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, new RuntimeException(message, t));
+             methodWrapper.decompiledWithErrors = true;
+           }
+         }
+@@ -829,8 +828,8 @@ public class ClassWriter {
+             tracer.addTracer(codeTracer);
+           }
+           catch (Throwable t) {
+-            String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " couldn't be written.";
+-            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, t);
++            String message = "Method " + mt.getName() + " " + mt.getDescriptor() + " in class " + mt.getClassStruct().qualifiedName + " couldn't be written.";
++            DecompilerContext.getLogger().writeMessage(message, IFernflowerLogger.Severity.WARN, new RuntimeException(message, t));
+             methodWrapper.decompiledWithErrors = true;
+           }
+         }
